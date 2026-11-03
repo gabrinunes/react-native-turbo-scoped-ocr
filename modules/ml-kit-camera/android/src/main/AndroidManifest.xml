@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="expo.modules.mlkitcamera">
+    <!-- Declara o uso obrigatório da câmera do celular -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Garante que o app saiba que depende do hardware da câmera
+    -->
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
+</manifest>
