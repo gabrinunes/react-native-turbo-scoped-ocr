@@ -40,8 +40,6 @@ As pastas `android/` e `ios/` da raiz são geradas pelo prebuild e não são ver
 import { MlKitCameraView } from './modules/ml-kit-camera';
 
 <MlKitCameraView
-  style={{ flex: 1 }}
-  lastKm={67000}
   onTextRecognized={(e) => console.log(e.nativeEvent.text)}
 />
 ```
