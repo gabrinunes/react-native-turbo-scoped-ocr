@@ -12,7 +12,7 @@ Libs de OCR costumam devolver "o texto que viu". Aqui o controle do pipeline (an
 
 ## Stack
 
-- Expo [versão] / React Native [versão]
+- Expo 58.0.22 / React Native 0.88.1
 - CameraX 1.4.0
 - ML Kit Text Recognition 16.0.1
 - Jetpack Compose
@@ -59,8 +59,6 @@ Com a minificação ligada, o R8 quebrava o `TextRecognition.getClient` do ML Ki
 ## Limitações
 
 - Só Android.
-- [Testado em quais aparelhos?]
-- [Qualquer limite que você conheça, por exemplo a precisão do OCR em movimento]
 
 ## Estrutura
 
