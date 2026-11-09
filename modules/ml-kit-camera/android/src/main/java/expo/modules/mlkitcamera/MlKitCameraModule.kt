@@ -9,6 +9,8 @@ class MlKitCameraModule : Module() {
     override fun definition() = ModuleDefinition {
         Name("MlKitCamera")
 
+        val ocrTextValidator = OcrTextValidator(3)
+
 
         Function("abrirCamera") {
             val activity = appContext.currentActivity
@@ -22,8 +24,34 @@ class MlKitCameraModule : Module() {
             }
         }
 
+//        Function("resetCamera"){
+//            val ocrTextValidator = OcrTextValidator(3)
+//            ocrTextValidator.reset()
+//        }
+
         View(MyCustomCameraView::class) {
             Events("onTextRecognized")
+
+            OnViewDestroys { _ ->
+                ocrTextValidator.reset()
+            }
+
+
+            Prop("maskWidth") { view: MyCustomCameraView, maskWidth: Int? ->
+                if (maskWidth != null) {
+                    view.setMaskWidth(maskWidth)
+                } else {
+                    view.resetMaskWidth()
+                }
+            }
+            Prop("maskHeight") { view: MyCustomCameraView, maskHeight: Int? ->
+                if (maskHeight != null) {
+                    view.setMaskHeight(maskHeight)
+                } else {
+                    view.resetMaskHeight()
+                }
+            }
+
         }
 
         Function("hello") {

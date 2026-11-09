@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ScannerOverlay() {
+fun ScannerOverlay(maskWidth: Float, maskHeight: Float) {
     val configuration = LocalConfiguration.current
-    val boxHeight = (configuration.screenHeightDp * 0.4f).dp
+    val boxHeight = (configuration.screenHeightDp * maskHeight).dp
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -48,8 +48,8 @@ fun ScannerOverlay() {
 
         Surface(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight(0.4f),
+                .fillMaxWidth(maskWidth)
+                .fillMaxHeight(maskHeight),
             shape = RoundedCornerShape(24.dp),
             color = Color.Transparent,
             border = BorderStroke(3.dp, Color(0xFF00FF88)),
@@ -82,6 +82,6 @@ fun ScannerOverlayPreview() {
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        ScannerOverlay()
+        ScannerOverlay(0.8f, 0.4f)
     }
 }

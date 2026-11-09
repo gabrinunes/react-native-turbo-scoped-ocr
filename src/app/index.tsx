@@ -1,10 +1,17 @@
 import * as Device from "expo-device";
-import { Platform, StyleSheet } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { Host } from "@expo/ui/jetpack-compose";
 import { useIsFocused } from "expo-router/build/react-navigation/index.js";
+import { useState } from "react";
 import {
   MlKitCamera,
   MlKitCameraView,
@@ -40,21 +47,39 @@ const openCamera = () => {
 export default function HomeScreen() {
   const isFocused = useIsFocused();
   console.log("checking", isFocused);
+  const [ocrText, setOcrText] = useState<string>("");
 
   if (!isFocused) {
     return null;
   }
+
+  if (ocrText !== "") {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "white",
+        }}
+      >
+        <Text style={{ fontSize: 16 }}>{`Funcionou :${ocrText}`}</Text>
+        <TouchableOpacity onPress={() => setOcrText("")}>
+          <Text>Scanear denovo</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <Host
       style={{
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "black",
       }}
     >
       <MlKitCameraView
-        onTextRecognized={(event) =>
-          console.log("Escutando do NATIVO", event.nativeEvent)
-        }
+        onTextRecognized={(event) => setOcrText(event.nativeEvent.text)}
       />
     </Host>
   );

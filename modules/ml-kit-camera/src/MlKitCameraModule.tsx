@@ -11,6 +11,9 @@ export const MlKitCamera =
 
 export interface MlKitCameraViewProps extends ViewProps {
   onTextRecognized?: (event: { nativeEvent: { text: string } }) => void;
+  urlInternal?: string;
+  maskWidth?: number;
+  maskHeight?: number;
 }
 
 const NativeView = requireNativeView<MlKitCameraViewProps>("MlKitCamera");

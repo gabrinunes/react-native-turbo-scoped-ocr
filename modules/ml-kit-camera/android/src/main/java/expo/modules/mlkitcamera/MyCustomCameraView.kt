@@ -13,7 +13,11 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -24,24 +28,52 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
-import expo.modules.kotlin.views.ComposableScope
-import expo.modules.kotlin.views.ExpoComposeView
+import expo.modules.kotlin.views.ExpoView
 import java.lang.Runnable
 import java.util.concurrent.Executors
 
 
-class MyCustomCameraView(context: Context, appContext: AppContext) :
-    ExpoComposeView<MyCustomCameraProps>(context, appContext) {
+class MyCustomCameraView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
     private val cameraExecutor = Executors.newSingleThreadExecutor()
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val onTextRecognized by EventDispatcher()
-    private var lastText: String? = null
-    private var lastSentAt = 0L
+    private val defaultMaskWidth = 0.8f
+    private val defaultMaskHeight = 0.4f
+    private val ocrValidator = OcrTextValidator(3)
+    private var maskWidth by mutableStateOf(defaultMaskWidth)
+    private var maskHeight by mutableStateOf(defaultMaskHeight)
+
+
+    fun setMaskWidth(value: Int) {
+        maskWidth = value / 100f
+    }
+
+    fun setMaskHeight(value: Int) {
+        maskHeight = value / 100f
+    }
+
+    fun resetMaskWidth() {
+        maskWidth = defaultMaskWidth
+    }
+
+    fun resetMaskHeight() {
+        maskHeight = defaultMaskHeight
+    }
+
+    init {
+        val composeView = ComposeView(context).also {
+            it.setContent { ComposableScope() }
+        }
+        addView(composeView)
+    }
+
 
     @Composable
-    override fun ComposableScope.Content() {
+    fun ComposableScope() {
         val currentContext = LocalContext.current
         val lifecycleOwner = LocalLifecycleOwner.current
+
+//        println("TESTANDO SE A PROP VEM DE LA MSM: ${props?.urlInternal}")
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -53,7 +85,7 @@ class MyCustomCameraView(context: Context, appContext: AppContext) :
                     }
                 }, modifier = Modifier.fillMaxSize()
             )
-            ScannerOverlay()
+            ScannerOverlay(maskWidth, maskHeight)
         }
     }
 
@@ -113,8 +145,8 @@ class MyCustomCameraView(context: Context, appContext: AppContext) :
             }
 
 
-            val targetWidthPercent = 0.8f
-            val targetHeightPercent = 0.4f
+            val targetWidthPercent = maskWidth
+            val targetHeightPercent = maskHeight
 
             val cropWidth = (bitmap.width * targetWidthPercent).toInt()
             val cropHeight = (bitmap.height * targetHeightPercent).toInt()
@@ -141,16 +173,8 @@ class MyCustomCameraView(context: Context, appContext: AppContext) :
     }
 
     private fun sendTextToJs(text: String) {
-        val clean = text.trim()
-        val now = System.currentTimeMillis()
-
-        if (clean.length < 4) return
-        if (clean == lastText) return
-        if (now - lastSentAt < 800) return   // ajuste conforme a necessidade
-
-        lastText = clean
-        lastSentAt = now
-        onTextRecognized(mapOf("text" to text))
+        ocrValidator.processNewText(text) { texto -> onTextRecognized(mapOf("text" to texto)) }
 
     }
 }
+
