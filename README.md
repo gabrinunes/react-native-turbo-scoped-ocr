@@ -1,56 +1,75 @@
-# Welcome to your Expo app 👋
+# ml-kit-camera
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Módulo nativo Expo (Android) que lê texto com a câmera usando CameraX + ML Kit + Jetpack Compose, e devolve o resultado pro JS por evento.
 
-## Get started
+> Status: estudo/protótipo. Só Android por enquanto.
 
-1. Install dependencies
+[GIF ou vídeo curto aqui]
 
-   ```bash
-   npm install
-   ```
+## Por que um módulo nativo
 
-2. Start the app
+Libs de OCR costumam devolver "o texto que viu". Aqui o controle do pipeline (análise de frames, backpressure, liberação de cada imagem, parada da análise) fica no nativo, e a regra de negócio fica no JS.
 
-   ```bash
-   npx expo start
-   ```
+## Stack
 
-In the output, you'll find options to open the app in a
+- Expo [versão] / React Native [versão]
+- CameraX 1.4.0
+- ML Kit Text Recognition 16.0.1
+- Jetpack Compose
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Como rodar
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Não funciona no Expo Go, porque tem código nativo. Precisa de development build:
 
 ```bash
-npm run reset-project
+npm install
+npx expo run:android
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Build release:
 
-### Other setup steps
+```bash
+npx expo run:android --variant release
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+As pastas `android/` e `ios/` da raiz são geradas pelo prebuild e não são versionadas.
 
-## Learn more
+## Uso
 
-To learn more about developing your project with Expo, look at the following resources:
+```tsx
+import { MlKitCameraView } from './modules/ml-kit-camera';
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+<MlKitCameraView
+  style={{ flex: 1 }}
+  lastKm={67000}
+  onTextRecognized={(e) => console.log(e.nativeEvent.text)}
+/>
+```
 
-## Join the community
+| Prop | Tipo | Descrição |
+|---|---|---|
+| `lastKm` | `number` | [o que ela faz no seu código] |
+| `onTextRecognized` | `(e) => void` | Dispara com `e.nativeEvent.text` |
 
-Join our community of developers creating universal apps.
+## Permissões
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+A permissão `CAMERA` está declarada no manifest do módulo. Em runtime, o app ainda precisa pedir a permissão antes de montar a view.
+
+## Release e R8
+
+Com a minificação ligada, o R8 quebrava o `TextRecognition.getClient` do ML Kit (view com tela preta no release, debug normal). As regras de keep estão em `modules/ml-kit-camera/android/consumer-rules.pro` e acompanham o módulo.
+
+## Limitações
+
+- Só Android.
+- [Testado em quais aparelhos?]
+- [Qualquer limite que você conheça, por exemplo a precisão do OCR em movimento]
+
+## Estrutura
+
+```
+modules/ml-kit-camera/
+  android/          Kotlin, build.gradle, consumer-rules.pro
+  src/              TSX do componente
+  expo-module.config.json
+```
