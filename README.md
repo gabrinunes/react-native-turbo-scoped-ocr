@@ -46,7 +46,6 @@ import { MlKitCameraView } from './modules/ml-kit-camera';
 
 | Prop | Tipo | Descrição |
 |---|---|---|
-| `lastKm` | `number` | [o que ela faz no seu código] |
 | `onTextRecognized` | `(e) => void` | Dispara com `e.nativeEvent.text` |
 
 ## Permissões
